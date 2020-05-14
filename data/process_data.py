@@ -4,6 +4,16 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """ 
+    This function loads messages and categories then merges them together. 
+  
+    Parameters: 
+    messages_filepath (str): Messages csv file  path
+    categories_filepath (str): Categories csv file  path
+  
+    Returns: 
+    pandas.DataFrame: Merged DataFrame
+    """
     # load messages dataset
 	messages = pd.read_csv(messages_filepath)
 	# load categories dataset
@@ -14,11 +24,24 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """ 
+    This function cleans the input dataframe. 
+    1. Get Category Names
+    2. Get Category Values-Dummies
+    3. Convert category values to integers
+    4. Remove Duplicates
+  
+    Parameters: 
+    df (pd.DataFrame): Merged DataFrame
+  
+    Returns: 
+    pandas.DataFrame: Cleaned DataFrame
+    """
 	# create a dataframe of the 36 individual category columns
 	categories = df['categories'].str.split(';', expand=True)
 	# select the first row of the categories dataframe
 	row = categories.loc[0]
-	# extract a list of new column names for categories.
+	# extract a list of new column names for categories. Remove unnecessary chars.
 	category_colnames = row.str.replace(r'-\w','')
 	# rename the columns of `categories`
 	categories.columns = category_colnames
@@ -36,6 +59,16 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """ 
+    This function saves input DataFrame to a SQL Database. 
+  
+    Parameters: 
+    df (pd.DataFrame): Messages csv file  path
+    database_filename (str): Database file name
+  
+    Returns: 
+    None
+    """
     engine = create_engine('sqlite:///{}'.format(database_filename))
     # get a cursor
     #cur = engine.cursor()

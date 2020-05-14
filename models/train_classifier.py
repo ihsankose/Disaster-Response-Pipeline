@@ -23,6 +23,18 @@ from sklearn.metrics import classification_report
 import pickle
 
 def load_data(database_filepath):
+    """ 
+    This function loads database from SQL Database. 
+    
+  
+    Parameters: 
+    database_filepath (str): SQL Database file path
+  
+    Returns: 
+    X (array): Messages
+    y (array): Message Categories
+    categories(array) : Category Names
+    """
     # load data from database
 	engine = create_engine('sqlite:///{}'.format(database_filepath))
 	df = pd.read_sql_table('messages',con=engine)
@@ -34,6 +46,7 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """Standart Word Tokenizer, Input: (str) """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -46,6 +59,15 @@ def tokenize(text):
 
 
 def build_model():
+    """ 
+    This function builds the classifier model. 
+  
+    Parameters: 
+    None
+  
+    Returns: 
+    Pipeline  : Model
+    """
 	pipeline = Pipeline([
 			('vect', CountVectorizer(tokenizer=tokenize)),
 			('tfidf', TfidfTransformer()),
@@ -57,13 +79,27 @@ def build_model():
 		#'vect__max_features': (None, 5000, 10000),
 		#'tfidf__use_idf': (True, False)
 		}
-
+    # This takes really long time to complete, comment out below lines to use gridsearchcv
 	# cv = GridSearchCV(pipeline, param_grid=parameters)
 	# return cv
 	return pipeline
 
 
 def evaluate_model(model, X_test, y_test, category_names):
+    """ 
+    This function evaluates the model with test data.
+    Then prints out the prediction score for each category column.    
+  
+    Parameters: 
+    model (pipeline): Previously trained model
+    X_test (array): Test input 
+    y_test (array): Test output
+    category_names (array): category names for printing out
+  
+    Returns: 
+    None,
+    Only prints out the scores
+    """
 	y_hat = model.predict(X_test)
 	df_y_hat=pd.DataFrame(y_hat)
 	df_y_test=pd.DataFrame(y_test)
